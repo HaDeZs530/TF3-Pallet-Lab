@@ -44,6 +44,13 @@ canvas{display:block;width:100%;height:auto}
 canvas{cursor:crosshair}
 .badge{position:absolute;top:10px;right:10px;font-family:var(--display);font-size:14px;letter-spacing:.06em;background:#000a;padding:4px 10px;border-radius:5px}
 .hint{color:var(--muted);font-size:12px}
+.fld{font:inherit;background:#0b0e11;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0;width:100%;box-sizing:border-box}
+.fl{font-size:12px;color:var(--muted);margin-bottom:-6px}
+.steps{margin:0;padding-left:18px;font-size:12px;color:#cfd8e1;display:flex;flex-direction:column;gap:6px;line-height:1.45}
+.steps code,.howto code{font-family:var(--mono);font-size:11px;background:#0b0e11;border:1px solid var(--line);border-radius:4px;padding:1px 4px;overflow-wrap:anywhere}
+.howto summary{cursor:pointer;font-size:12px;color:var(--fg)}
+.primary{background:#2b5d8a;border-color:#3d74a6}
+
 .adv{display:flex;flex-direction:column;gap:6px}
 .ar{display:grid;grid-template-columns:22px 1fr 30px 46px;gap:6px;align-items:center;font-size:12.5px}
 .ar .chip{width:22px;height:22px;border-radius:4px;border:1px solid #0006}
@@ -93,6 +100,26 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font-family:var(--mon
    <div class="hint">Top row: 7 panel shades. Bottom: 5 highlight shades.</div></div>
   <div class="box"><div class="lab">Mod settings</div><div class="code" id="code"></div>
    <button id="copy">Copy settings</button></div>
+  <div class="box"><div class="lab">Make it a mod</div>
+   <div class="fl">Theme name</div><input class="fld" id="mname" placeholder="e.g. Midnight Teal" maxlength="40">
+   <div class="fl">Your name (author)</div><input class="fld" id="mauthor" placeholder="e.g. HaDeZs" maxlength="40">
+   <div class="fl">Short description (optional)</div><input class="fld" id="mdesc" placeholder="e.g. Dark teal panels, mint highlights" maxlength="200">
+   <div class="hint" id="mid"></div>
+   <button type="button" id="mkmod" class="primary">Download mod (.zip)</button>
+   <button type="button" id="mklogo">Save logo only (.png)</button>
+   <div class="msg" id="mkmsg"></div>
+   <div class="hint">The mod's logo is the screen you're viewing right now, in your colors. Pick the tab you want before downloading.</div>
+   <details class="howto"><summary>How to install the mod</summary>
+    <ol class="steps">
+     <li>Close Transport Fever 3.</li>
+     <li>Unzip the download. You get one folder (its name is the mod ID shown above).</li>
+     <li>Open your TF3 user folder:<br><code>C:\Program Files (x86)\Steam\userdata\&lt;number&gt;\3493540\local\</code><br>The number is your Steam account ID. If there are several, use the one that has a <code>3493540</code> folder inside.</li>
+     <li>Copy the whole mod folder into <code>local\mods\</code> (create <code>mods</code> if it isn't there). You should end up with <code>local\mods\&lt;mod ID&gt;\mod.json</code>.</li>
+     <li>Start the game and turn the mod on in the mod list. Turn off any other UI color mod (Dark UI, other Palette Lab themes): they all change the same colors.</li>
+    </ol>
+    <div class="hint">To publish it on mod.io instead, put the folder in <code>local\staging_area\</code> (not in <code>mods</code>), restart the game, then Mod Manager → My Mods → upload. The logo is already included. Full guide is in INSTALL.txt inside the zip.</div>
+   </details>
+  </div>
  </div>
  <div class="stage">
   <div class="tabs" id="tabs"></div>
@@ -205,4 +232,79 @@ function renderS(){const a=loadS(),box=document.getElementById('saved');box.inne
 document.getElementById('svbtn').onclick=()=>{const n=document.getElementById('svname').value.trim()||('Scheme '+(loadS().length+1));const a=loadS();a.push({name:n,text:schemeText(params())});saveS(a);renderS();document.getElementById('svname').value=''};
 renderS();
 tab(0);usePreset("Cobalt");
+// ---- Make it a mod ----
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function makeZip(files){const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+ for(const f of files){const name=enc.encode(f.name),data=typeof f.data==='string'?enc.encode(f.data):f.data,crc=crc32(data);
+  const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,0,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,name.length,true);h.setUint16(28,0,true);
+  parts.push(new Uint8Array(h.buffer),name,data);
+  const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,0,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,name.length,true);c.setUint32(42,off,true);
+  cen.push(new Uint8Array(c.buffer),name);off+=30+name.length+data.length}
+ const csz=cen.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,csz,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/zip'})}
+function slug(t){return (t||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,30)}
+function modInfo(){const name=document.getElementById('mname').value.trim()||'My UI Theme',author=document.getElementById('mauthor').value.trim()||'Anonymous',desc=document.getElementById('mdesc').value.trim();
+ const a=slug(author)||'anon',n=slug(name)||'theme';return {name,author,desc,id:`${a}_ui_${n}_1`}}
+function showId(){document.getElementById('mid').innerHTML='Mod ID: <code>'+modInfo().id+'</code>'}
+['mname','mauthor','mdesc'].forEach(i=>document.getElementById(i).addEventListener('input',showId));showId();
+async function logoBlob(){const s=await load(cur),P=palette(params()),ST=DATA.stock,dl=new Float32Array(39);
+ for(let k=0;k<12;k++)for(let c=0;c<3;c++)dl[(k+1)*3+c]=P[k][c]-ST[k][c];
+ const src=s.img.data,m=s.map,out=new ImageData(s.w,s.h),o=out.data;
+ for(let i=0;i<src.length;i+=4){const k=m[i],w=k?m[i+1]/255*1.05:0,b=k*3;o[i]=src[i]+w*dl[b];o[i+1]=src[i+1]+w*dl[b+1];o[i+2]=src[i+2]+w*dl[b+2];o[i+3]=255}
+ const a=document.createElement('canvas');a.width=s.w;a.height=s.h;a.getContext('2d').putImageData(out,0,0);
+ const W=1920,H=1080,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,W,H);
+ const sc=Math.max(W/s.w,H/s.h),dw=s.w*sc,dh=s.h*sc;x.imageSmoothingQuality='high';x.drawImage(a,(W-dw)/2,(H-dh)/2,dw,dh);
+ return new Promise(r=>c.toBlob(r,'image/png'))}
+function save(blob,name){const u=URL.createObjectURL(blob),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+function luaStr(t){return t.replace(/[\r\n]+/g,' ')}
+function modFiles(info,png){const P=palette(params()).map(hex2),N=DATA.names,id=info.id;
+ const modjson=JSON.stringify({cosmetic:true,dependencies:null,incompatibilities:[{mod:{modId:'apasz_dark_ui_1'}}],modId:id,options:null,params:null,postRunScript:{fileName:''},preRunScript:{fileName:''},revision:1,runScript:{fileName:''},severityAdd:'None',severityRemove:'None'},null,4);
+ const content=JSON.stringify({archives:null,files:['gui/main/default_colors.gres.lua','gui/main/recolor.script.tl']},null,4);
+ const desc=info.desc||'Custom UI colors made with TF3 Palette Lab.';
+ const meta=JSON.stringify({authors:[{name:info.author,role:'CREATOR'}],description:desc+'\n\nMade with TF3 Palette Lab: https://hadezs530.github.io/TF3-Pallet-Lab/',name:info.name,summary:desc.slice(0,100),tags:['Cosmetic'],url:''},null,4);
+ const gres='function data()\n\treturn {\n\t\ttype = "gui_res_overwrite",\n\t\tdata = {\n\t\t\toverwriteScript = {\n\t\t\t\tfileName = "/gui/main/recolor.script@overwrite",\n\t\t\t},\n\t\t},\n\t}\nend\n';
+ const script=`-- ${luaStr(info.name)} by ${luaStr(info.author)} (made with TF3 Palette Lab). Edit any hex below, then restart TF3.\n\nlocal function hex(h : string) : GResColor\n\tlocal r = tonumber(h:sub(2,3), 16) / 255.0\n\tlocal g = tonumber(h:sub(4,5), 16) / 255.0\n\tlocal b = tonumber(h:sub(6,7), 16) / 255.0\n\treturn { r, g, b, 1.0 }\nend\n\nlocal data : OverwriteGuiRes = {}\n\ndata.overwrite = function(_params : table)\n\tlocal colorRes = api.gui.genericRep.get(api.gui.genericRep.find("/gui/main/default_colors.gres"))\n\tlocal colors = colorRes.data as DefaultColors\n`+N.map((n,i)=>`\tcolors.${n} = hex("${P[i]}")\n`).join('')+`\tcolorRes:setData(colors as table)\nend\n\nreturn data\n`;
+ const install=`${info.name} - Transport Fever 3 UI color mod
+Made with TF3 Palette Lab: https://hadezs530.github.io/TF3-Pallet-Lab/
+
+INSTALL (to play with it)
+1. Close Transport Fever 3.
+2. Open your TF3 user folder. On Steam it is:
+     C:\\Program Files (x86)\\Steam\\userdata\\<number>\\3493540\\local\\
+   <number> is your Steam account ID. If there are several, use the one
+   that has a 3493540 folder inside. (Steam installed somewhere else? Use
+   that Steam folder instead. The game's own install drive doesn't matter.)
+3. Copy the whole "${id}" folder into local\\mods\\
+   (create the mods folder if it isn't there). Check that you have:
+     local\\mods\\${id}\\mod.json
+   Not: local\\mods\\${id}\\${id}\\mod.json
+4. Start the game and turn on "${info.name}" in the mod list.
+5. Turn off any other UI color mod (Dark UI, other Palette Lab themes).
+   They all change the same 12 colors, so only one can win.
+
+CHANGE A COLOR LATER
+Open content\\gui\\main\\recolor.script.tl in Notepad, change a hex value,
+save, restart the game.
+
+REMOVE IT
+Turn it off in the mod list, or delete the folder from local\\mods\\.
+
+PUBLISH IT ON MOD.IO (optional)
+1. Put the folder in local\\staging_area\\ instead of local\\mods\\
+   (don't keep a copy with the same mod ID in both).
+2. Restart the game, open Mod Manager > My Mods, select the mod, upload.
+   The logo is _metadata\\0.png. Name and description come from
+   _metadata\\modinfo.json.
+3. After uploading, the game writes _metadata\\mod.io_fileid.txt. Keep it.
+   To update later: raise "revision" in mod.json, restart, and only upload
+   if the dialog says "The existing mod on mod.io will be updated."
+
+Colors in this mod:
+`+N.map((n,i)=>`  ${n.padEnd(16)} ${P[i]}`).join('\n')+'\n';
+ const f=[['mod.json',modjson],['_content.json',content],['_metadata/modinfo.json',meta],['content/gui/main/default_colors.gres.lua',gres],['content/gui/main/recolor.script.tl',script],['INSTALL.txt',install.replace(/\n/g,'\r\n')]].map(([n,d])=>({name:id+'/'+n,data:d}));
+ if(png)f.push({name:id+'/_metadata/0.png',data:png});return f}
+const mkmsg=document.getElementById('mkmsg');
+document.getElementById('mkmod').onclick=async()=>{try{const info=modInfo(),png=new Uint8Array(await (await logoBlob()).arrayBuffer());save(makeZip(modFiles(info,png)),info.id+'.zip');mkmsg.className='msg ok';mkmsg.textContent='Downloaded '+info.id+'.zip'}catch(e){mkmsg.className='msg err';mkmsg.textContent='Could not build the zip: '+e.message}};
+document.getElementById('mklogo').onclick=async()=>{try{save(await logoBlob(),modInfo().id+'_logo.png');mkmsg.className='msg ok';mkmsg.textContent='Logo saved.'}catch(e){mkmsg.className='msg err';mkmsg.textContent='Could not save the logo: '+e.message}};
 </script>
