@@ -5,9 +5,9 @@ Design your own Transport Fever 3 UI colors on real in-game screenshots, then do
 **Open the Lab:** https://hadezs530.github.io/TF3-Pallet-Lab/
 
 ## Making a theme
-1. Start from a preset (Stock, Cobalt, Teal, Mauve Dusk) or move the sliders.
+1. Start from a preset (Default UI, Cobalt, Teal, Mauve Dusk) or move the sliders.
 2. Click anything in the screenshot to see which of the 12 palette shades paints it, and pin it to its own color if you want.
-3. Hold **Hold to see stock** (or press Space) to compare with the default UI.
+3. Hold **Hold to see default UI** (or press Space) to compare with the default UI.
 
 ## Turning it into a mod
 1. In **Make it a mod**, type a theme name and your name.
