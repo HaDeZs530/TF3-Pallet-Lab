@@ -16,7 +16,7 @@ Design your own Transport Fever 3 UI colors on real in-game screenshots, then do
 
 ## Installing the mod
 1. Close Transport Fever 3.
-2. Unzip the download. You get one folder named after the mod ID (for example `hadezs_ui_midnight_teal_1`).
+2. Unzip the download. You get one folder named after the mod ID (for example `railbaron42_ui_midnight_teal_1`).
 3. Open your TF3 user folder. On Steam it is:
    `C:\Program Files (x86)\Steam\userdata\<number>\3493540\local\`
    `<number>` is your Steam account ID. If there are several, use the one with a `3493540` folder inside. If Steam is installed somewhere else, use that Steam folder. The drive the game is installed on doesn't matter.
