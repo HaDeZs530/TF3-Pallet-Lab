@@ -117,7 +117,6 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font-family:var(--mon
      <li>Copy the whole mod folder into <code>local\mods\</code> (create <code>mods</code> if it isn't there). You should end up with <code>local\mods\&lt;mod ID&gt;\mod.json</code>.</li>
      <li>Start the game and turn the mod on in the mod list. Turn off any other UI color mod (Dark UI, other Palette Lab themes): they all change the same colors.</li>
     </ol>
-    <div class="hint">To publish it on mod.io instead, put the folder in <code>local\staging_area\</code> (not in <code>mods</code>), restart the game, then Mod Manager → My Mods → upload. The logo is already included. Full guide is in INSTALL.txt inside the zip.</div>
    </details>
   </div>
  </div>
@@ -289,16 +288,6 @@ save, restart the game.
 
 REMOVE IT
 Turn it off in the mod list, or delete the folder from local\\mods\\.
-
-PUBLISH IT ON MOD.IO (optional)
-1. Put the folder in local\\staging_area\\ instead of local\\mods\\
-   (don't keep a copy with the same mod ID in both).
-2. Restart the game, open Mod Manager > My Mods, select the mod, upload.
-   The logo is _metadata\\0.png. Name and description come from
-   _metadata\\modinfo.json.
-3. After uploading, the game writes _metadata\\mod.io_fileid.txt. Keep it.
-   To update later: raise "revision" in mod.json, restart, and only upload
-   if the dialog says "The existing mod on mod.io will be updated."
 
 Colors in this mod:
 `+N.map((n,i)=>`  ${n.padEnd(16)} ${P[i]}`).join('\n')+'\n';

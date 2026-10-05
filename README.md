@@ -28,9 +28,4 @@ Design your own Transport Fever 3 UI colors on real in-game screenshots, then do
 
 **Remove it:** turn it off in the mod list, or delete its folder from `local\mods\`.
 
-## Publishing on mod.io (optional)
-1. Put the mod folder in `local\staging_area\` instead of `local\mods\`. Don't keep a copy with the same mod ID in both.
-2. Restart the game, open **Mod Manager → My Mods**, select the mod and upload. The logo (`_metadata\0.png`) and the name and description (`_metadata\modinfo.json`) are already filled in.
-3. After uploading, the game writes `_metadata\mod.io_fileid.txt`. Keep it. To update later, raise `revision` in `mod.json`, restart, and only upload if the dialog says "The existing mod on mod.io will be updated."
-
 Every downloaded zip also includes these steps as `INSTALL.txt`.
